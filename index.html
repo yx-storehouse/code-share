@@ -39,25 +39,16 @@
             width: 100%;
             height: 100px;
             background-color: #2d2d2d;
-            /* 设置背景色 */
             color: #ffffff;
-            /* 设置文字颜色 */
             border: none;
-            /* 取消 border */
             border-radius: 3px;
-            /* 添加圆角（可选） */
             resize: none;
-            /* 禁止用户调整大小 */
             outline: none;
-            /* 取消焦点状态下的默认轮廓 */
         }
 
-        /* 移除选中时的高亮背景 */
         textarea::selection {
             background: none;
-            /* 取消选中时的背景色 */
             color: #ffffff;
-            /* 选中时文字颜色（可选） */
         }
 
         .messages {
@@ -68,7 +59,6 @@
             flex-direction: column-reverse;
         }
 
-        /* 为留言内容设置代码框样式，带滚动条和限制高度 */
         .message-box {
             position: relative;
             width: 100%;
@@ -76,12 +66,15 @@
             overflow: auto;
             padding: 10px;
             background-color: #2d2d2d;
-            /* 配合 prism-tomorrow 主题 */
             border: 1px solid #ccc;
             border-radius: 5px;
             margin-bottom: 10px;
             color: #f8f8f2;
-            /* 保持和代码框颜色一致 */
+        }
+
+        .message-box::-webkit-scrollbar {
+            display: none;
+            /* 对于 Chrome 和 Safari 隐藏滚动条 */
         }
 
         .copy-btn {
@@ -108,14 +101,12 @@
 
         pre {
             white-space: pre-wrap;
-            /* 保持换行 */
             word-wrap: break-word;
-            /* 自动换行 */
         }
 
         .update-box {
             width: 200px;
-            position:fixed;
+            position: fixed;
             z-index: 999;
             right: 10%;
             top: 50%;
@@ -126,29 +117,20 @@
             width: 100%;
             height: 40px;
             background-color: #2d2d2d;
-            /* 扁平按钮的背景色 */
             color: #ffffff;
-            /* 按钮文字颜色 */
             border: none;
-            /* 取消边框 */
             border-radius: 3px;
-            /* 可选：添加圆角 */
             font-size: 16px;
-            /* 字体大小 */
             cursor: pointer;
-            /* 鼠标悬停时显示为手指形状 */
             transition: background-color 0.3s;
-            /* 背景色变化过渡效果 */
         }
 
         .submit:hover {
             background-color: #444444;
-            /* 鼠标悬停时的背景色 */
         }
 
         .submit:focus {
             outline: none;
-            /* 取消焦点状态下的默认轮廓 */
         }
     </style>
 </head>
@@ -166,10 +148,14 @@
 </body>
 
 <script>
-    const repoOwner = 'yxnbkls'; // 替换为你的 Gitee 用户名
-    const repoName = 'storge'; // 替换为你存储留言的仓库名
-    const accessToken = '9f43664de2ca43df41b8c78b1ea88019'; // 替换为你的 Gitee Access Token
-    const filePath = 'messages.json'; // 存储文件的名称
+    const repoOwner = 'yxnbkls';
+    const repoName = 'storge';
+    const accessToken = '9f43664de2ca43df41b8c78b1ea88019';
+    const filePath = 'messages.json';
+
+    // 存储的 SHA 值和数据
+    let lastSha = '';
+    let lastContent = '';
 
     // UTF-8 转 Base64
     function utf8_to_b64(str) {
@@ -193,7 +179,6 @@
             return;
         }
 
-        // 获取现有留言
         fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
             method: 'GET',
             headers: {
@@ -205,7 +190,6 @@
                 const content = data.content ? JSON.parse(b64_to_utf8(data.content)) : [];
                 content.push({ id: content.length + 1, message });
 
-                // 提交留言更新
                 return fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
                     method: 'PUT',
                     headers: {
@@ -237,46 +221,51 @@
         })
             .then(response => response.json())
             .then(data => {
-                const content = data.content ? JSON.parse(b64_to_utf8(data.content)) : [];
-                const messagesList = document.getElementById('messages');
-                messagesList.innerHTML = '';  // 清空现有的留言
+                const content = b64_to_utf8(data.content);
+                const sha = data.sha;
 
-                content.forEach(item => {
-                    const listItem = document.createElement('li');
+                // 只有当内容或 SHA 发生变化时，才更新页面
+                if (sha !== lastSha || content !== lastContent) {
+                    lastSha = sha;
+                    lastContent = content;
 
-                    // 留言框样式
-                    const messageBox = document.createElement('div');
-                    messageBox.classList.add('message-box');
+                    const messages = JSON.parse(content);
+                    const messagesList = document.getElementById('messages');
+                    messagesList.innerHTML = '';  // 清空现有的留言
 
-                    // 复制按钮
-                    const copyBtn = document.createElement('button');
-                    copyBtn.classList.add('copy-btn');
-                    copyBtn.textContent = '复制';
-                    copyBtn.onclick = () => {
-                        navigator.clipboard.writeText(item.message).then(() => {
-                            
-                        });
-                    };
+                    messages.forEach(item => {
+                        const listItem = document.createElement('li');
 
-                    // 留言内容，使用 Prism.js 高亮
-                    const codeBlock = document.createElement('pre');
-                    const codeContent = document.createElement('code');
-                    codeContent.classList.add('language-html'); // 语言类型可根据实际情况调整
-                    codeContent.textContent = item.message;
-                    codeBlock.appendChild(codeContent);
+                        const messageBox = document.createElement('div');
+                        messageBox.classList.add('message-box');
 
-                    // 添加按钮和代码块
-                    messageBox.appendChild(copyBtn);
-                    messageBox.appendChild(codeBlock);
-                    listItem.appendChild(messageBox);
-                    messagesList.appendChild(listItem);
+                        const copyBtn = document.createElement('button');
+                        copyBtn.classList.add('copy-btn');
+                        copyBtn.textContent = '复制';
+                        copyBtn.onclick = () => {
+                            navigator.clipboard.writeText(item.message);
+                        };
 
-                    // 重新渲染语法高亮
-                    Prism.highlightAllUnder(listItem);
-                });
+                        const codeBlock = document.createElement('pre');
+                        const codeContent = document.createElement('code');
+                        codeContent.classList.add('language-html');
+                        codeContent.textContent = item.message;
+                        codeBlock.appendChild(codeContent);
+
+                        messageBox.appendChild(copyBtn);
+                        messageBox.appendChild(codeBlock);
+                        listItem.appendChild(messageBox);
+                        messagesList.appendChild(listItem);
+
+                        Prism.highlightAllUnder(listItem);
+                    });
+                }
             })
             .catch(error => console.error('Error:', error));
     }
+
+    // 定时器，每隔 10 秒检查留言是否更新
+    setInterval(loadMessages, 1000);
 
     // 页面加载时加载留言记录
     loadMessages();
