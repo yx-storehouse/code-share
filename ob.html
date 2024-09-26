@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留言管理 - 代码高亮</title>
+    <link rel="icon" href="git.ico" type="image/x-icon">
+    <!-- 引入 Prism.js 的 CSS 样式 -->
+    <link href="prism.css" rel="stylesheet" />
+
+    <!-- 引入 Prism.js 的脚本 -->
+    <script src="prism.js"></script>
+
+    <style>
+        .container{
+            width: 100%;
+            position: relative;
+        }
+        /* 为代码块设置固定高度和滚动条 */
+        pre {
+            max-height: 150px; /* 设置最大高度 */
+            overflow: auto;    /* 当超过最大高度时显示滚动条 */
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #2d2d2d; /* 配合 prism-tomorrow 主题的背景色 */
+            border-radius: 5px;
+            white-space: pre-wrap; /* 保持换行 */
+            word-wrap: break-word;  /* 自动换行 */
+        }
+
+        /* 表格样式 */
+        table {
+            position: relative;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        td {
+            vertical-align: top;
+        }
+
+        button {
+            margin-right: 10px;
+        }
+        .message-table-body{
+            width: 100%;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+        tr{
+            width: 100%;
+        }
+        tr > :nth-child(2){
+            width: 95%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>留言管理</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>留言内容</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody class="message-table-body" id="message-table-body">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const repoOwner = 'yxnbkls'; // 替换为你的 Gitee 用户名
+        const repoName = 'storge'; // 替换为你存储留言的仓库名
+        const accessToken = '9f43664de2ca43df41b8c78b1ea88019'; // 替换为你的 Gitee Access Token
+        const filePath = 'messages.json'; // 存储文件的名称
+
+        // UTF-8 转 Base64
+        function utf8_to_b64(str) {
+            return window.btoa(unescape(encodeURIComponent(str)));
+        }
+
+        // Base64 转 UTF-8
+        function b64_to_utf8(str) {
+            return decodeURIComponent(escape(window.atob(str)));
+        }
+
+        function loadMessages() {
+            fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${accessToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const content = data.content ? JSON.parse(b64_to_utf8(data.content)) : [];
+                const messageTableBody = document.getElementById('message-table-body');
+                messageTableBody.innerHTML = '';  // 清空现有的表格
+
+                content.forEach(item => {
+                    const row = document.createElement('tr');
+
+                    // 编号
+                    const idCell = document.createElement('td');
+                    idCell.textContent = item.id;
+
+                    // 留言内容，使用 Prism.js 格式化高亮显示
+                    const messageCell = document.createElement('td');
+                    const codeBlock = document.createElement('pre');
+                    const codeContent = document.createElement('code');
+                    codeContent.classList.add('language-html'); // 可以根据需要更换语言
+                    codeContent.textContent = item.message;
+                    codeBlock.appendChild(codeContent);
+                    messageCell.appendChild(codeBlock);
+
+                    // 操作按钮
+                    const actionCell = document.createElement('td');
+                    const saveButton = document.createElement('button');
+                    saveButton.textContent = '保存';
+                    saveButton.addEventListener('click', () => saveMessage(item.id, codeContent.textContent));
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = '删除';
+                    deleteButton.addEventListener('click', () => deleteMessage(item.id));
+
+                    actionCell.appendChild(saveButton);
+                    actionCell.appendChild(deleteButton);
+
+                    // 添加到行中
+                    row.appendChild(idCell);
+                    row.appendChild(messageCell);
+                    row.appendChild(actionCell);
+
+                    // 添加到表格中
+                    messageTableBody.appendChild(row);
+
+                    // 重新渲染语法高亮
+                    Prism.highlightAllUnder(row);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function saveMessage(id, newMessage) {
+            // 获取 messages.json 文件的内容
+            fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${accessToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const content = data.content ? JSON.parse(b64_to_utf8(data.content)) : [];
+                const sha = data.sha;  // 获取文件的 sha 值
+
+                // 更新留言内容
+                const messageIndex = content.findIndex(item => item.id === id);
+                if (messageIndex !== -1) {
+                    content[messageIndex].message = newMessage;
+                }
+
+                // 提交更新到 Gitee
+                return fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: '更新留言内容',
+                        content: utf8_to_b64(JSON.stringify(content)),  // UTF-8 转 Base64 编码文件内容
+                        sha: sha,  // 提供 sha 值
+                        branch: 'master'
+                    })
+                });
+            })
+            .then(() => {
+                alert('留言已更新');
+                loadMessages();  // 重新加载留言记录
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function deleteMessage(id) {
+            // 获取 messages.json 文件的内容
+            fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${accessToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const content = data.content ? JSON.parse(b64_to_utf8(data.content)) : [];
+                const sha = data.sha;  // 获取文件的 sha 值
+
+                // 删除指定的留言
+                const updatedContent = content.filter(item => item.id !== id);
+
+                // 提交更新到 Gitee
+                return fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: '删除留言',
+                        content: utf8_to_b64(JSON.stringify(updatedContent)),  // UTF-8 转 Base64 编码文件内容
+                        sha: sha,  // 提供 sha 值
+                        branch: 'master'
+                    })
+                });
+            })
+            .then(() => {
+                alert('留言已删除');
+                loadMessages();  // 重新加载留言记录
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // 页面加载时加载留言记录
+        loadMessages();
+    </script>
+</body>
+</html>
