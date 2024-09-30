@@ -156,6 +156,17 @@
         .message {
             text-align: left;
         }
+
+        .time-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #6272a4;
+            color: #f8f8f2;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
     </style>
 </head>
 
@@ -234,7 +245,49 @@
                 })
                 .catch(error => console.error('Error:', error));
         }
+        function submitMessage() {
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value;
 
+            if (!message) {
+                alert("留言内容不能为空");
+                return;
+            }
+
+            // 获取当前时间
+            const currentTime = new Date().toLocaleString();
+
+            fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${accessToken}`
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const content = data.content ? JSON.parse(b64_to_utf8(data.content)) : [];
+                    content.push({ id: content.length + 1, message, time: currentTime });  // 添加时间信息
+
+                    return fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: '添加留言',
+                            content: utf8_to_b64(JSON.stringify(content)),
+                            sha: data.sha,
+                            branch: 'master'
+                        })
+                    });
+                })
+                .then(() => {
+                    messageInput.value = '';
+                    loadMessages(); // 刷新留言记录
+                })
+                .catch(error => console.error('Error:', error));
+        }
         // 加载留言记录
         function loadMessages() {
             fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
@@ -262,6 +315,19 @@
                             const messageBox = document.createElement('div');
                             messageBox.classList.add('message-box');
 
+                            // 创建时间元素
+                            const timeDisplay = document.createElement('span');
+                            timeDisplay.classList.add('time-display');
+                            timeDisplay.textContent = `上传时间: ${item.time}`;
+                            timeDisplay.style.position = 'absolute';
+                            timeDisplay.style.top = '10px';
+                            timeDisplay.style.left = '10px';
+                            timeDisplay.style.backgroundColor = '#6272a4';
+                            timeDisplay.style.color = '#f8f8f2';
+                            timeDisplay.style.padding = '5px 10px';
+                            timeDisplay.style.borderRadius = '3px';
+                            timeDisplay.style.fontSize = '12px';
+
                             const copyBtn = document.createElement('button');
                             copyBtn.classList.add('copy-btn');
                             copyBtn.textContent = '复制';
@@ -282,6 +348,8 @@
 
                             createToggle(toggleBtn, codeBlock);
 
+                            // 将时间元素添加到留言框中
+                            messageBox.appendChild(timeDisplay);
                             messageBox.appendChild(copyBtn);
                             messageBox.appendChild(codeBlock);
                             messageBox.appendChild(toggleBtn);
@@ -292,14 +360,12 @@
                         });
 
                         // 将滚动条设置为顶部
-
                         let messagesList_height = messagesList.scrollHeight;
                         messagesList.scrollTop = -messagesList_height;
-                        console.log(messagesList_height);
-
                     }
                 })
                 .catch(error => console.error('Error:', error));
+                
         }
 
         // 创建折叠展开功能
