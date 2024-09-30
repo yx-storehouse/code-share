@@ -7,28 +7,50 @@
     <title>Code God</title>
     <link rel="icon" href="assets/git.ico" type="image/x-icon">
 
+    <!-- Prism.js 的主题样式 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+
+    <!-- 其他样式文件 -->
     <link rel="stylesheet" href="css/spinkit.min.css" />
     <link rel="stylesheet" href="css/user.css">
     <link rel="stylesheet" href="css/spinkit.css">
-
 </head>
 
 <body>
     <div class="container">
+        <!-- 代码上传区域 -->
         <div class="update-box">
             <h1>代码上传</h1>
-            <textarea id="message" placeholder="请输入你的留言..."></textarea>
+            <textarea id="message" placeholder="请输入你的代码..."></textarea>
+
+            <!-- 语言选择下拉菜单 -->
+            <div class="choose">
+                <label for="languageSelect" style="color: #ff79c6;">请选择语言:</label>
+                <select id="languageSelect" name="language">
+                    <option value="html">HTML</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="css">CSS</option>
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
+                    <option value="csharp">C#</option>
+                </select>
+            </div>
+
             <button class="submit" id="submit">上传</button>
         </div>
 
-        <h2>仓库</h2>
+        <!-- 显示留言的区域 -->
+        <h2>代码仓库</h2>
         <ul class="messages" id="messages"></ul>
     </div>
+
+    <!-- Toast 弹出提示框 -->
     <div class="toast" id="toast">
         <p></p>
     </div>
+
+    <!-- 加载动画 -->
     <div class="loading">
         <div class="sk-circle" id="loading" style="display: none;">
             <div class="sk-circle1 sk-child"></div>
@@ -45,10 +67,9 @@
             <div class="sk-circle12 sk-child"></div>
         </div>
     </div>
-    </div>
 
-
+    <!-- JS 文件 -->
+    <script src="js/user.js"></script>
 </body>
-<script src="js/user.js"></script>
 
 </html>

@@ -198,3 +198,35 @@ pre {
     z-index: 1000;
     /* 保证它低于加载动画 */
 }
+.choose {  
+    position: absolute;
+    padding: 20px;  
+    border-radius: 8px;  
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  
+    text-align: center;  
+}  
+.dropdown {  
+    padding: 10px;  
+    border: 1px solid #ccc;  
+    border-radius: 5px;  
+    outline: none;  
+    transition: border 0.3s;  
+    font-size: 16px;  
+}  
+.dropdown:focus {  
+    border-color: #007BFF;  
+}  
+.submit-button {  
+    margin-top: 20px;  
+    padding: 10px 15px;  
+    border: none;  
+    border-radius: 5px;  
+    background-color: #007BFF;  
+    color: white;  
+    font-size: 16px;  
+    cursor: pointer;  
+    transition: background 0.3s;  
+}  
+.submit-button:hover {  
+    background-color: #0056b3;  
+}  

@@ -17,6 +17,7 @@ function b64_to_utf8(str) {
     return decodeURIComponent(escape(window.atob(str)));
 }
 document.getElementById('submit').addEventListener('click', submitMessage);
+let isFirstLoad = true;  // 定义一个标志，记录是否是首次加载
 // 显示加载动画
 function showLoading() {
     const loadingElement = document.getElementById('loading');
@@ -32,7 +33,7 @@ function showLoading() {
 // 隐藏加载动画
 function hideLoading() {
     const loadingElement = document.getElementById('loading');
-        if (loadingElement) {
+    if (loadingElement) {
         loadingElement.style.display = 'none'; // 隐藏加载动画
     } else {
         console.log("Loading element not found!");
@@ -52,12 +53,12 @@ function showToast(message) {
         console.log("Toast element not found!");
     }
 }
-
 // 提交留言
 function submitMessage() {
     const messageInput = document.getElementById('message');
+    const languageSelect = document.getElementById('languageSelect'); // 获取选择的语言
+    const language = languageSelect.value;  // 获取当前选择的语言
     const message = messageInput.value;
-    console.log('NB');
 
     if (!message) {
         showToast('留言不能为空');
@@ -78,7 +79,7 @@ function submitMessage() {
         .then(response => response.json())
         .then(data => {
             const content = data.content ? JSON.parse(b64_to_utf8(data.content)) : [];
-            content.push({ id: content.length + 1, message, time: currentTime });
+            content.push({ id: content.length + 1, message, time: currentTime, language });  // 添加语言信息
 
             return fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
                 method: 'PUT',
@@ -103,22 +104,20 @@ function submitMessage() {
             setTimeout(() => {
                 showToast('提交成功');
             }, 500);
-
         })
         .catch(error => {
             console.error('Error:', error);
-
-            // 提交失败时隐藏加载动画并显示错误提示
             hideLoading();
-            setTimeout(() => {
-                showToast('提交失败，请重试');
-            }, 500);
-
+            showToast('提交失败，请重试');
         });
 }
 
 // 加载留言记录
 function loadMessages() {
+    if (isFirstLoad) {
+        showLoading();
+    }
+
     fetch(`https://gitee.com/api/v5/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
         method: 'GET',
         headers: {
@@ -129,18 +128,17 @@ function loadMessages() {
         .then(data => {
             const content = b64_to_utf8(data.content);
             const sha = data.sha;
-            // 只有当内容或 SHA 发生变化时，才更新页面
+
             if (sha !== lastSha || content !== lastContent) {
                 lastSha = sha;
                 lastContent = content;
 
-                const messages = JSON.parse(content);
                 const messagesList = document.getElementById('messages');
                 messagesList.innerHTML = '';  // 清空现有的留言
 
+                const messages = JSON.parse(content);
                 messages.forEach(item => {
                     const listItem = document.createElement('li');
-
                     const messageBox = document.createElement('div');
                     messageBox.classList.add('message-box');
 
@@ -159,7 +157,10 @@ function loadMessages() {
                     const codeBlock = document.createElement('pre');
                     codeBlock.classList.add('code-block');
                     const codeContent = document.createElement('code');
-                    codeContent.classList.add('language-html');
+
+                    // 根据用户选择的语言，动态设置 Prism.js 语言类
+                    const languageClass = `language-${item.language}`;
+                    codeContent.classList.add(languageClass);
                     codeContent.textContent = item.message;
                     codeBlock.appendChild(codeContent);
 
@@ -176,17 +177,31 @@ function loadMessages() {
                     listItem.appendChild(messageBox);
                     messagesList.appendChild(listItem);
 
-                    Prism.highlightAllUnder(listItem);
+                    Prism.highlightAllUnder(listItem);  // 对新插入的代码块进行高亮
                 });
 
                 // 将滚动条设置为顶部
+                // 将滚动条设置为顶部
                 let message_height = messagesList.scrollHeight;
                 messagesList.scrollTop = -message_height;
+
+                if (isFirstLoad) {
+                    hideLoading();
+                    setTimeout(() => {
+                        showToast('加载成功');
+                    }, 500);
+                    isFirstLoad = false;  // 标记首次加载已完成
+                }
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            if (isFirstLoad) {
+                hideLoading();
+            }
+            showToast('加载失败');
+        });
 }
-
 // 创建折叠展开功能
 function createToggle(button, codeBlock) {
     button.addEventListener('click', () => {
