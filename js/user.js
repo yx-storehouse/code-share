@@ -214,4 +214,4 @@ function createToggle(button, codeBlock) {
 loadMessages();
 
 // 定时器，每隔 10 秒检查留言是否更新
-setInterval(loadMessages, 10000); // 10 秒
+setInterval(loadMessages, 500); // 10 秒
