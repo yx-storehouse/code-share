@@ -7,69 +7,384 @@
     <title>Code God</title>
     <link rel="icon" href="assets/git.ico" type="image/x-icon">
 
-    <!-- Prism.js 的主题样式 -->
+    <!-- Prism.js for syntax highlighting -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
 
-    <!-- 其他样式文件 -->
-    <link rel="stylesheet" href="css/spinkit.min.css" />
-    <link rel="stylesheet" href="css/user.css">
-    <link rel="stylesheet" href="css/spinkit.css">
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="css/index.css">
 </head>
 
 <body>
-    <div class="container">
-        <!-- 代码上传区域 -->
-        <div class="update-box">
-            <h1>代码上传</h1>
-            <textarea id="message" placeholder="请输入你的代码..."></textarea>
-
-            <!-- 语言选择下拉菜单 -->
-            <div class="choose">
-                <label for="languageSelect" style="color: #ff79c6;">请选择语言:</label>
-                <select id="languageSelect" name="language">
-                    <option value="html">HTML</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="css">CSS</option>
-                    <option value="python">Python</option>
-                    <option value="java">Java</option>
-                    <option value="csharp">C#</option>
-                </select>
-            </div>
-
-            <button class="submit" id="submit">上传</button>
+    <!-- App Header -->
+    <header class="app-header">
+        <div class="app-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary);">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+            <h1>Code God</h1>
         </div>
+        <div class="app-actions">
+            <button class="upload-btn" id="uploadBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                上传代码
+            </button>
+            <div class="user-profile" id="userProfile" style="display: none;">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-info">
+                    <span class="user-name" id="userName"></span>
+                    <span class="user-actions" id="logoutBtn">退出登录</span>
+                </div>
+            </div>
+        </div>
+    </header>
 
-        <!-- 显示留言的区域 -->
-        <h2>代码仓库</h2>
-        <ul class="messages" id="messages"></ul>
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>分类</h2>
+            </div>
+            <div class="category-container" id="categoryContainer">
+                <!-- Categories will be loaded here -->
+            </div>
+            <button class="add-category-btn" id="addCategoryBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                新建分类
+            </button>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-header">
+                <h2>代码仓库</h2>
+            </div>
+            <ul class="repo-list" id="repoList">
+                <!-- Repositories will be loaded here -->
+            </ul>
+            <button class="add-repo-btn" id="addRepoBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                新建仓库
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="repo-header">
+                <h2 id="currentRepoName">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    加载中...
+                </h2>
+                <div class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="搜索代码..." />
+                </div>
+            </div>
+            <div id="messages"></div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <div class="repo-members">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    仓库成员
+                </h3>
+                <div id="membersContainer" class="members-container"></div>
+            </div>
+            <div class="sidebar-section">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="2"></circle>
+                    </svg>
+                    在线用户
+                </h3>
+                <div id="onlineUsersContainer" class="online-users-container"></div>
+            </div>
+        </aside>
     </div>
 
-    <!-- Toast 弹出提示框 -->
+    <!-- Members Management Modal -->
+    <div class="modal" id="membersModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>成员管理</h3>
+                <button class="close-btn" id="closeMembersModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="members-section">
+                    <h4>当前成员</h4>
+                    <ul class="members-list" id="membersList"></ul>
+                </div>
+                <div class="add-member-section">
+                    <h4>添加成员</h4>
+                    <div class="add-member-form">
+                        <div class="form-group">
+                            <input type="text" id="newMemberUsername" placeholder="输入用户名">
+                        </div>
+                        <button class="btn btn-primary" id="addMemberBtn">添加</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>上传代码</h2>
+                <button class="close-modal" id="closeUploadModal">&times;</button>
+            </div>
+            <textarea id="message" placeholder="请输入你的代码..." spellcheck="false"></textarea>
+            <div class="form-controls">
+                <div class="language-select">
+                    
+                    <select id="languageSelect" name="language">
+                        <option value="html">HTML</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="css">CSS</option>
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                        <option value="csharp">C#</option>
+                    </select>
+                </div>
+                <button class="submit-btn" id="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    上传代码
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Repository Modal -->
+    <div class="modal" id="newRepoModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>新建仓库</h2>
+                <button class="close-modal" id="closeNewRepoModal">&times;</button>
+            </div>
+            <div class="repo-form-group">
+                <label for="repoName">仓库名称</label>
+                <input type="text" id="repoName" placeholder="请输入仓库名称">
+            </div>
+            <div class="repo-form-group">
+                <label for="repoDescription">仓库描述 (可选)</label>
+                <input type="text" id="repoDescription" placeholder="请输入仓库描述">
+            </div>
+            <div class="repo-form-group">
+                <label for="repoCategorySelect">选择分类</label>
+                <select id="repoCategorySelect">
+                    <!-- Categories will be loaded here -->
+                </select>
+            </div>
+            <button class="submit-btn" id="createRepoBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 11.08V8l-6-6H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h6"></path>
+                    <path d="M14 3v5h5M18 21v-6M15 18h6"></path>
+                </svg>
+                创建仓库
+            </button>
+        </div>
+    </div>
+
+    <!-- Category Section -->
+    <div class="category-section">
+        <div class="section-header">
+            <h3>分类</h3>
+        </div>
+        <div id="categoryContainer" class="category-list">
+            <!-- Categories will be rendered here -->
+        </div>
+    </div>
+
+    <!-- New Category Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>新建分类</h2>
+                <button class="close-modal" id="closeCategoryModal">&times;</button>
+            </div>
+            <div class="repo-form-group">
+                <label for="categoryName">分类名称</label>
+                <input type="text" id="categoryName" placeholder="请输入分类名称">
+            </div>
+            <button class="submit-btn" id="createCategoryBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                创建分类
+            </button>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2>欢迎使用 Code God</h2>
+                <p>请登录或注册以继续使用</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">登录</div>
+                <div class="auth-tab" data-tab="register">注册</div>
+            </div>
+            
+            <!-- 登录表单 -->
+            <div class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">用户名</label>
+                    <input type="text" id="loginUsername" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入密码">
+                    <div class="auth-error" id="loginError"></div>
+                </div>
+                <button class="auth-btn" id="loginBtn">登录</button>
+            </div>
+            
+            <!-- 注册表单 -->
+            <div class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="registerUsername">用户名</label>
+                    <input type="text" id="registerUsername" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">密码</label>
+                    <input type="password" id="registerPassword" placeholder="请输入密码">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" placeholder="请再次输入密码">
+                    <div class="auth-error" id="registerError"></div>
+                </div>
+                <button class="auth-btn" id="registerBtn">注册</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
     <div class="toast" id="toast">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
         <p></p>
     </div>
 
-    <!-- 加载动画 -->
-    <div class="loading">
-        <div class="sk-circle" id="loading" style="display: none;">
-            <div class="sk-circle1 sk-child"></div>
-            <div class="sk-circle2 sk-child"></div>
-            <div class="sk-circle3 sk-child"></div>
-            <div class="sk-circle4 sk-child"></div>
-            <div class="sk-circle5 sk-child"></div>
-            <div class="sk-circle6 sk-child"></div>
-            <div class="sk-circle7 sk-child"></div>
-            <div class="sk-circle8 sk-child"></div>
-            <div class="sk-circle9 sk-child"></div>
-            <div class="sk-circle10 sk-child"></div>
-            <div class="sk-circle11 sk-child"></div>
-            <div class="sk-circle12 sk-child"></div>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- 分类编辑模态框 -->
+    <div class="modal" id="categoryEditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑分类</h3>
+                <button class="close-btn" id="closeCategoryEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editCategoryName">分类名称</label>
+                    <input type="text" id="editCategoryName" placeholder="输入分类名称">
+                    <input type="hidden" id="editCategoryId">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="cancelEditCategory">取消</button>
+                    <button class="btn btn-primary" id="saveCategory">保存</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- JS 文件 -->
-    <script src="js/user.js"></script>
+    <!-- 仓库编辑模态框 -->
+    <div class="modal" id="repoEditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑仓库</h3>
+                <button class="close-btn" id="closeRepoEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editRepoName">仓库名称</label>
+                    <input type="text" id="editRepoName" placeholder="输入仓库名称">
+                </div>
+                <div class="form-group">
+                    <label for="editRepoDescription">仓库描述</label>
+                    <textarea id="editRepoDescription" placeholder="输入仓库描述"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editRepoCategory">所属分类</label>
+                    <select id="editRepoCategory"></select>
+                </div>
+                <input type="hidden" id="editRepoId">
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="cancelEditRepo">取消</button>
+                    <button class="btn btn-primary" id="saveRepo">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 配置错误确认模态框 -->
+    <div class="modal" id="configErrorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>配置错误</h3>
+                <button class="close-btn" id="closeConfigErrorModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="config-error-message">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <p id="configErrorText">配置文件出现错误</p>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="cancelCreateConfig">取消</button>
+                    <button class="btn btn-primary" id="confirmCreateConfig">创建默认配置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script type="module" src="js/index.js"></script>
 </body>
 
 </html>

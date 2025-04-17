@@ -1,0 +1,493 @@
+/* 分类和仓库操作按钮样式 */
+.category-actions,
+.repo-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    opacity: 0; /* 默认隐藏 */
+    transition: opacity 0.2s;
+}
+
+.category-item:hover .category-actions,
+.repo-item:hover .repo-actions {
+    opacity: 1; /* 鼠标悬停时显示 */
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn:hover {
+    color: #333;
+}
+
+.action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.action-btn.delete-btn:hover {
+    color: #ff4444;
+}
+
+.action-btn.edit-btn:hover {
+    color: #4CAF50;
+}
+
+/* 分类项和仓库项样式 */
+.category-item,
+.repo-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.category-item:hover,
+.repo-item:hover {
+    background-color: #f5f5f5;
+}
+
+.category-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.category-name,
+.repo-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #666;
+}
+
+.modal-body {
+    padding: 16px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #45a049;
+}
+
+.btn-secondary {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
+/* 成员管理样式 */
+.members-section,
+.add-member-section {
+    margin-bottom: 20px;
+}
+
+.members-section h4,
+.add-member-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.members-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.member-item:last-child {
+    border-bottom: none;
+}
+
+.member-avatar {
+    min-width: 36px;
+    min-height: 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 12px;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.member-avatar.online::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #45D655;
+    border-radius: 50%;
+    bottom: 0;
+    right: 0;
+    border: 2px solid white;
+}
+
+.member-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.member-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.member-role {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 2px;
+}
+
+.member-status {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 2px;
+}
+
+.remove-member-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ff4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.remove-member-btn:hover {
+    opacity: 1;
+}
+
+.remove-member-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.add-member-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.add-member-form .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* 侧边栏在线用户列表 */
+.sidebar-section {
+    margin-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 15px;
+}
+
+.sidebar-section h3 {
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar-section h3 svg {
+    width: 16px;
+    height: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.online-users-container {
+    margin-top: 10px;
+}
+
+.online-user {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+}
+
+.user-avatar {
+    min-width: 30px;
+    min-height: 30px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 10px;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.user-avatar.online::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: #45D655;
+    border-radius: 50%;
+    bottom: 0;
+    right: 0;
+    border: 2px solid #2c3347;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.9);
+    display: block;
+}
+
+.user-status {
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.no-users, 
+.no-members {
+    font-size: 0.9em;
+    color: #888;
+    text-align: center;
+    padding: 10px;
+}
+
+/* 仓库成员管理按钮 */
+.manage-members-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f5f5f5;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: #333;
+    margin-left: auto;
+    transition: background-color 0.2s;
+}
+
+.manage-members-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.manage-members-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* 仓库成员列表 */
+.repo-members {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.repo-members h3 {
+    font-size: 1.1em;
+    margin-top: 0;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+}
+
+.repo-members h3 svg {
+    width: 18px;
+    height: 18px;
+    color: #666;
+    flex-shrink: 0;
+}
+
+.members-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* 作者信息样式 */
+.author-info {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.author-avatar {
+    min-width: 24px;
+    min-height: 24px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 8px;
+    font-size: 0.8em;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.author-avatar.online::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: #45D655;
+    border-radius: 50%;
+    bottom: 0;
+    right: 0;
+    border: 2px solid white;
+}
+
+.author-name {
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-right: 8px;
+}
+
+.author-status {
+    font-size: 0.8em;
+    color: #888;
+} 
