@@ -1487,3 +1487,68 @@ select:focus {
     from { transform: translateY(-30px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
+
+/* Guest login section */
+.guest-login-section {
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    text-align: center;
+}
+
+.guest-login-btn {
+    background-color: var(--accent-tertiary);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.guest-login-btn:hover {
+    background-color: var(--accent-quaternary);
+    transform: translateY(-2px);
+}
+
+.guest-login-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.guest-login-info {
+    font-size: 12px;
+    color: var(--text-primary);
+    opacity: 0.7;
+}
+
+/* Guest avatar */
+.guest-avatar {
+    background-color: var(--accent-tertiary) !important;
+    position: relative;
+}
+
+.guest-avatar:after {
+    content: '游';
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    font-size: 8px;
+    background-color: var(--accent-quaternary);
+    color: var(--text-primary);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

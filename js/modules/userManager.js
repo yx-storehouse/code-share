@@ -15,7 +15,10 @@ export function checkAuth() {
     const user = localStorage.getItem('codeGodUser');
     if (user) {
         const userData = JSON.parse(user);
-        currentUser = { username: userData.username };
+        currentUser = { 
+            username: userData.username,
+            isGuest: userData.isGuest || false // 恢复游客状态
+        };
         isAdmin = userData.isAdmin || false; // 恢复管理员状态
         
         // 使当前用户和管理员状态全局可用
@@ -30,6 +33,39 @@ export function checkAuth() {
     }
 }
 
+// 游客登录
+export function guestLogin() {
+    // 生成随机游客ID
+    const guestId = 'guest_' + Math.floor(Math.random() * 10000) + '_' + Date.now().toString().slice(-4);
+    
+    // 创建游客用户
+    currentUser = { username: guestId, isGuest: true };
+    isAdmin = false; // 游客不是管理员
+    
+    // 更新全局变量
+    window.currentUser = currentUser;
+    window.isAdmin = isAdmin;
+    
+    // 保存到本地存储
+    localStorage.setItem('codeGodUser', JSON.stringify({ 
+        username: guestId, 
+        isAdmin: false, 
+        isGuest: true 
+    }));
+    
+    hideAuthModal();
+    showUserProfile();
+    showToast('已以游客身份登录', 'success');
+    
+    // 更新UI
+    loadCloudConfig();
+    loadCategories();
+    loadRepositories();
+    updateUserOnlineStatus(true);
+    
+    return true;
+}
+
 // 显示用户资料
 export function showUserProfile() {
     const userProfile = document.getElementById('userProfile');
@@ -38,7 +74,14 @@ export function showUserProfile() {
     
     if (currentUser) {
         userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
-        userName.textContent = currentUser.username + (isAdmin ? ' (管理员)' : '');
+        // 显示游客标识
+        if (currentUser.isGuest) {
+            userName.textContent = '游客';
+            userAvatar.classList.add('guest-avatar');
+        } else {
+            userName.textContent = currentUser.username + (isAdmin ? ' (管理员)' : '');
+            userAvatar.classList.remove('guest-avatar');
+        }
         userProfile.style.display = 'flex';
     }
 }
@@ -72,6 +115,11 @@ export function setupAuthHandlers() {
             document.getElementById('registerError').textContent = '';
             document.getElementById('registerError').classList.remove('show');
         });
+    });
+
+    // 游客登录按钮
+    document.getElementById('guestLoginBtn')?.addEventListener('click', function() {
+        guestLogin();
     });
 
     // 登录按钮
