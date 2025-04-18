@@ -18,7 +18,7 @@
 
     <!-- Animate.css for animations -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/index.css"><link rel="stylesheet" href="css/responsive.css">
 </head>
 
 <body>
@@ -51,6 +51,16 @@
 
     <!-- App Container -->
     <div class="app-container">
+        <!-- 移动端侧边栏切换按钮 -->
+        <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <span>菜单</span>
+        </button>
+        
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -80,6 +90,21 @@
                 </svg>
                 新建仓库
             </button>
+            
+            <!-- 合并右侧边栏内容 -->
+            <div class="sidebar-combined-section">
+                <div class="sidebar-header">
+                    <h2>仓库成员</h2>
+                </div>
+                <div id="membersContainer" class="members-container"></div>
+                
+                <div class="sidebar-divider"></div>
+                
+                <div class="sidebar-header">
+                    <h2>在线用户</h2>
+                </div>
+                <div id="onlineUsersContainer" class="online-users-container"></div>
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -101,32 +126,6 @@
             </div>
             <div id="messages"></div>
         </main>
-
-        <!-- Right Sidebar -->
-        <aside class="right-sidebar">
-            <div class="repo-members">
-                <h3>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                    仓库成员
-                </h3>
-                <div id="membersContainer" class="members-container"></div>
-            </div>
-            <div class="sidebar-section">
-                <h3>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <circle cx="12" cy="12" r="2"></circle>
-                    </svg>
-                    在线用户
-                </h3>
-                <div id="onlineUsersContainer" class="online-users-container"></div>
-            </div>
-        </aside>
     </div>
 
     <!-- Members Management Modal -->
@@ -214,16 +213,6 @@
                 </svg>
                 创建仓库
             </button>
-        </div>
-    </div>
-
-    <!-- Category Section -->
-    <div class="category-section">
-        <div class="section-header">
-            <h3>分类</h3>
-        </div>
-        <div id="categoryContainer" class="category-list">
-            <!-- Categories will be rendered here -->
         </div>
     </div>
 
@@ -400,3 +389,6 @@
 </body>
 
 </html>
+
+
+

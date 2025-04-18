@@ -253,6 +253,59 @@ function setupEventListeners() {
             import('./categoryManager.js').then(m => m.hideCategoryModal());
         }
     });
+
+    // 移动端侧边栏切换按钮事件
+    document.getElementById('mobileSidebarToggle')?.addEventListener('click', function() {
+        const sidebar = document.querySelector('.sidebar');
+        const toggleBtn = document.getElementById('mobileSidebarToggle');
+        
+        // 切换侧边栏的展开/收起状态
+        sidebar.classList.toggle('expanded');
+        toggleBtn.classList.toggle('active');
+        
+        // 更新按钮文本
+        const buttonText = toggleBtn.querySelector('span');
+        if (sidebar.classList.contains('expanded')) {
+            buttonText.textContent = '收起菜单';
+        } else {
+            buttonText.textContent = '展开菜单';
+        }
+    });
+    
+    // 初始化时检查是否为移动设备，设置默认状态
+    function checkMobileView() {
+        const sidebar = document.querySelector('.sidebar');
+        const toggleBtn = document.getElementById('mobileSidebarToggle');
+        
+        if (window.innerWidth <= 768) {
+            // 移动设备上默认收起侧边栏
+            sidebar.classList.remove('expanded');
+            
+            // 确保没有内联样式影响
+            sidebar.removeAttribute('style');
+            
+            if (toggleBtn) {
+                // 在移动设备上确保按钮显示正确状态
+                toggleBtn.classList.remove('active');
+                const buttonText = toggleBtn.querySelector('span');
+                if (buttonText) {
+                    buttonText.textContent = '展开菜单';
+                }
+            }
+        } else {
+            // 非移动设备上重置为默认样式
+            sidebar.classList.remove('expanded');
+            
+            // 确保没有内联样式影响
+            sidebar.removeAttribute('style');
+        }
+    }
+    
+    // 初次检查移动视图
+    checkMobileView();
+    
+    // 窗口大小变化时重新检查
+    window.addEventListener('resize', checkMobileView);
 }
 
 // Setup timers - 设置定时器

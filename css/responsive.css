@@ -1,0 +1,334 @@
+@media (max-width: 992px) { .app-header { padding: 0 15px; } .repo-header { flex-direction: column; } .search-box { width: 100%; } }
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: var(--bg-primary);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--accent-tertiary);
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.1) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 6px 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-primary);
+}
+
+::-webkit-scrollbar-corner {
+    background-color: var(--bg-primary);
+}
+
+/* Firefox 滚动条样式 */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-tertiary) var(--bg-primary);
+}
+
+/* 默认侧边栏样式 - 大屏幕下展开显示 */
+.sidebar {
+    width: 250px;
+    height: 100%;
+    opacity: 1;
+    overflow-y: auto;
+}
+
+/* 默认隐藏移动端菜单按钮 */
+.mobile-sidebar-toggle {
+    display: none;
+}
+
+/* 移动端竖屏样式 */
+@media (max-width: 768px) {
+    /* 基本结构样式 */
+    .app-container {
+        flex-direction: column;
+    }
+
+    /* 显示移动端菜单按钮 */
+    .mobile-sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--accent-tertiary);
+        border-radius: 6px;
+        color: var(--text-primary);
+        padding: 12px 15px;
+        margin: 10px 15px;
+        cursor: pointer;
+        width: calc(100% - 30px);
+        font-size: 14px;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .mobile-sidebar-toggle:hover {
+        background-color: var(--accent-quaternary);
+    }
+    
+    .mobile-sidebar-toggle svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.3s ease;
+    }
+    
+    .mobile-sidebar-toggle.active svg {
+        transform: rotate(180deg);
+    }
+    
+    .mobile-sidebar-toggle.active {
+        background-color: var(--accent-tertiary);
+    }
+
+    /* 侧边栏基本样式 */
+    .sidebar, .right-sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-left: none;
+        padding: 0;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+    }
+    
+    /* 默认隐藏侧边栏 */
+    .sidebar {
+        max-height: 0;
+        border-bottom: none;
+        opacity: 0;
+    }
+    
+    /* 侧边栏展开时 */
+    .sidebar.expanded {
+        max-height: 800px; /* 允许更多内容显示 */
+        border-bottom: 1px solid var(--accent-tertiary);
+        padding: 15px;
+        opacity: 1;
+    }
+
+    /* 右侧边栏完全隐藏 */
+    .right-sidebar {
+        display: none;
+    }
+    
+    /* 移动端侧边栏内容样式调整 */
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .sidebar-header h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    /* 分类和仓库列表样式 */
+    .category-container, .repo-list {
+        max-height: 150px;
+        overflow-y: auto;
+        margin-bottom: 15px;
+        padding: 5px;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 6px;
+    }
+    
+    /* 美化移动端列表滚动条 */
+    .category-container::-webkit-scrollbar,
+    .repo-list::-webkit-scrollbar,
+    .members-container::-webkit-scrollbar,
+    .online-users-container::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    
+    .category-container::-webkit-scrollbar-thumb,
+    .repo-list::-webkit-scrollbar-thumb,
+    .members-container::-webkit-scrollbar-thumb,
+    .online-users-container::-webkit-scrollbar-thumb {
+        background-color: var(--accent-tertiary);
+        border-radius: 4px;
+        background-image: none;
+    }
+    
+    .category-container::-webkit-scrollbar-thumb:hover,
+    .repo-list::-webkit-scrollbar-thumb:hover,
+    .members-container::-webkit-scrollbar-thumb:hover,
+    .online-users-container::-webkit-scrollbar-thumb:hover {
+        background-color: var(--accent-quaternary);
+    }
+    
+    .category-container::-webkit-scrollbar-track,
+    .repo-list::-webkit-scrollbar-track,
+    .members-container::-webkit-scrollbar-track,
+    .online-users-container::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+    
+    /* Firefox移动端滚动条 */
+    .category-container, 
+    .repo-list,
+    .members-container,
+    .online-users-container {
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-tertiary) transparent;
+    }
+    
+    /* 合并右侧边栏内容到左侧边栏 */
+    .sidebar-combined-section {
+        border-top: 1px solid var(--accent-tertiary);
+        margin-top: 15px;
+        padding-top: 15px;
+    }
+    
+    .sidebar-divider {
+        margin: 10px 0;
+        height: 1px;
+        background-color: var(--accent-tertiary);
+        opacity: 0.5;
+    }
+    
+    /* 成员和在线用户列表样式 */
+    .members-container, .online-users-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 5px;
+    }
+    
+    /* 适配移动端的按钮样式 */
+    .add-category-btn, .add-repo-btn {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) { 
+    .app-header { 
+        flex-direction: column; 
+        padding: 10px; 
+        gap: 10px; 
+    } 
+    
+    .app-logo { 
+        width: 100%; 
+    } 
+    
+    .app-actions { 
+        width: 100%; 
+        justify-content: space-between; 
+    } 
+    
+    /* 缩小移动端按钮字体 */
+    .mobile-sidebar-toggle {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+    
+    /* 更加紧凑的布局 */
+    .sidebar.expanded {
+        padding: 10px;
+    }
+    
+    .category-container, .repo-list {
+        max-height: 120px;
+    }
+}
+
+/* 特定区域滚动条样式 */
+/* 侧边栏滚动条 */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(98, 114, 164, 0.6);
+    background-image: none;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-quaternary);
+}
+
+/* 代码区域滚动条 */
+.code-block pre::-webkit-scrollbar {
+    height: 6px;
+}
+
+.code-block pre::-webkit-scrollbar-thumb {
+    background-color: rgba(189, 147, 249, 0.4);
+    background-image: none;
+}
+
+.code-block pre::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-quaternary);
+}
+
+/* 文本区域滚动条 */
+textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 121, 198, 0.4);
+    background-image: none;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-primary);
+}
+
+/* 模态框滚动条 */
+.modal-content::-webkit-scrollbar,
+.modal-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-thumb,
+.modal-container::-webkit-scrollbar-thumb {
+    background-color: rgba(80, 250, 123, 0.4);
+    background-image: none;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover,
+.modal-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-secondary);
+}
+
+/* 滚动容器动画效果 */
+.sidebar, 
+.code-block pre, 
+textarea, 
+.modal-content, 
+.modal-container {
+    /* 添加过渡效果 */
+    transition: scrollbar-color 0.3s ease;
+}
+
+/* 在滚动时添加阴影效果 */
+.sidebar:hover,
+.code-block pre:hover,
+textarea:focus {
+    /* 添加微妙的内阴影提示 */
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+}
