@@ -1042,7 +1042,7 @@ select:focus {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000;
+    z-index: 999999;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
