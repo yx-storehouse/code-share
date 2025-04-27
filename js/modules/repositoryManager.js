@@ -4,9 +4,15 @@ import { showToast, showLoading, hideLoading } from '../utils/common.js';
 import { saveCloudConfig, createEmptyFile } from './cloudManager.js';
 import { getCategories, getCurrentCategory } from './categoryManager.js';
 import { loadMessages } from './messageManager.js';
-
+import { ConfirmDialog } from '../utils/confirm-dialog.js';
 let repositories = [];
 let currentRepo = null;
+
+// 创建确认对话框实例
+const confirmDialog = new ConfirmDialog({
+    theme: "dark",
+    notificationText: "删除成功",
+})
 
 // 获取仓库数据
 export function getRepositories() {
@@ -33,7 +39,7 @@ export function fixRepositoryCategoryLinks() {
     // 获取所有有效的分类ID
     const categories = getCategories();
     const validCategoryIds = categories.map(c => c.id);
-    
+
     // 修复仓库的分类ID
     repositories.forEach(repo => {
         // 如果仓库的分类ID不存在于当前分类列表中，将其设置为第一个非"全部"的分类
@@ -42,12 +48,12 @@ export function fixRepositoryCategoryLinks() {
             repo.categoryId = defaultCategory.id;
             console.log(`Fixed repository ${repo.name} category to ${defaultCategory.name}`);
         }
-        
+
         // 确保仓库有members和createdBy字段
         if (!repo.members) {
             repo.members = repo.createdBy ? [repo.createdBy] : [];
         }
-        
+
         if (!repo.createdBy && window.currentUser) {
             repo.createdBy = window.currentUser.username;
         }
@@ -64,22 +70,22 @@ export function loadRepositories() {
 export function renderRepositoriesByCategory() {
     const currentCategory = getCurrentCategory();
     if (!currentCategory) return;
-    
+
     const repoList = document.getElementById('repoList');
     if (!repoList) return;
-    
+
     repoList.innerHTML = '';
-    
+
     // 记录筛选前后的仓库数量，用于调试
     const allReposCount = repositories.length;
-    
+
     // 筛选仓库
-    const filteredRepositories = currentCategory.id === 'all' ? 
-        repositories : 
+    const filteredRepositories = currentCategory.id === 'all' ?
+        repositories :
         repositories.filter(repo => repo.categoryId === currentCategory.id);
-    
+
     console.log(`Rendering repositories: All=${allReposCount}, Filtered=${filteredRepositories.length}, Category=${currentCategory.name}(${currentCategory.id})`);
-        
+
     if (filteredRepositories.length === 0) {
         const noRepos = document.createElement('div');
         noRepos.className = 'no-repos';
@@ -94,30 +100,30 @@ export function renderRepositoriesByCategory() {
             </button>
         `;
         repoList.appendChild(noRepos);
-        
+
         // 为分类为空时的"添加仓库"按钮添加事件监听器
-        document.getElementById('addRepoInCategory')?.addEventListener('click', function() {
+        document.getElementById('addRepoInCategory')?.addEventListener('click', function () {
             if (window.checkAuth()) {
                 showNewRepoModal();
             }
         });
-        
+
         return;
     }
-    
+
     // 渲染仓库列表
     filteredRepositories.forEach(repo => {
         const li = document.createElement('li');
         li.className = 'repo-item';
         li.dataset.id = repo.id;
-        
+
         // 创建仓库信息容器
         const repoInfo = document.createElement('div');
         repoInfo.className = 'repo-info';
-        
+
         // 显示仓库成员数量
         const memberCount = repo.members ? repo.members.length : 0;
-        
+
         // 添加仓库图标和名称
         repoInfo.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -134,14 +140,14 @@ export function renderRepositoriesByCategory() {
                 ${memberCount}
             </span>
         `;
-        
+
         li.appendChild(repoInfo);
-        
+
         // 如果是管理员或仓库创建者，添加操作按钮
         if (window.isAdmin || (repo.createdBy && window.currentUser && window.currentUser.username === repo.createdBy)) {
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'repo-actions';
-            
+
             // 添加成员管理按钮
             const membersBtn = document.createElement('button');
             membersBtn.className = 'action-btn members-btn';
@@ -154,7 +160,7 @@ export function renderRepositoriesByCategory() {
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
             `;
-            
+
             // 添加编辑按钮
             const editBtn = document.createElement('button');
             editBtn.className = 'action-btn edit-btn';
@@ -165,7 +171,7 @@ export function renderRepositoriesByCategory() {
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
             `;
-            
+
             // 添加删除按钮
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'action-btn delete-btn';
@@ -176,40 +182,46 @@ export function renderRepositoriesByCategory() {
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
             `;
-            
+
             // 添加按钮到操作区域
             actionsDiv.appendChild(membersBtn);
             actionsDiv.appendChild(editBtn);
             actionsDiv.appendChild(deleteBtn);
             li.appendChild(actionsDiv);
-            
+
             // 添加按钮点击事件
             membersBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 window.dispatchEvent(new CustomEvent('showMembersModal', { detail: repo }));
             });
-            
+
             editBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 showRepoEditModal(repo);
             });
-            
+
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (confirm(`确定要删除仓库"${repo.name}"吗？`)) {
-                    deleteRepository(repo.id);
-                }
+                confirmDialog.show({
+                    title: "确认删除",
+                    content: `确定要删除仓库"${repo.name}"吗？`,
+                    confirmText: "删除",
+                    cancelText: "取消",
+                    onConfirm: () => {
+                        deleteRepository(repo.id);
+                    },
+                })
             });
         }
-        
+
         // 添加仓库项点击事件
         li.addEventListener('click', () => {
             selectRepository(repo);
         });
-        
+
         repoList.appendChild(li);
     });
-    
+
     // 如果当前选中的仓库在筛选列表中，保持其高亮状态
     if (currentRepo && filteredRepositories.some(r => r.id === currentRepo.id)) {
         const activeItem = document.querySelector(`.repo-item[data-id="${currentRepo.id}"]`);
@@ -227,12 +239,12 @@ export function renderRepositories() {
 // 选择仓库
 export function selectRepository(repo) {
     currentRepo = repo;
-    
+
     // 准备仓库信息
     const createdByInfo = repo.createdBy ? `创建者: ${repo.createdBy}` : '';
     const createdAtInfo = repo.createdAt ? `创建时间: ${repo.createdAt}` : '';
     const membersCount = repo.members ? repo.members.length : 1;
-    
+
     // 更新UI
     document.getElementById('currentRepoName').innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -253,11 +265,11 @@ export function selectRepository(repo) {
             </span>
         </div>
     `;
-    
+
     // 显示成员管理按钮（如果当前用户是创建者）
     const repoHeader = document.querySelector('.repo-header');
     const manageMembersBtn = document.querySelector('#manageMembersBtn');
-    
+
     if (window.isAdmin || (repo.createdBy && window.currentUser && window.currentUser.username === repo.createdBy)) {
         if (!manageMembersBtn) {
             const manageMembersButton = document.createElement('button');
@@ -278,7 +290,7 @@ export function selectRepository(repo) {
     } else if (manageMembersBtn) {
         manageMembersBtn.remove();
     }
-    
+
     // 更新侧边栏中激活的仓库
     document.querySelectorAll('.repo-item').forEach(item => {
         if (item.dataset.id === repo.id) {
@@ -287,10 +299,10 @@ export function selectRepository(repo) {
             item.classList.remove('active');
         }
     });
-    
+
     // 加载此仓库的消息
     loadMessages();
-    
+
     // 更新仓库成员列表
     window.dispatchEvent(new CustomEvent('updateMembersUI', { detail: repo }));
 }
@@ -301,11 +313,11 @@ export function createRepository(name, description, categoryId) {
     let validCategoryId = categoryId;
     const categories = getCategories();
     const currentCategory = getCurrentCategory();
-    
+
     // 验证分类ID是否有效
     if (!validCategoryId || !categories.some(c => c.id === validCategoryId)) {
         // 如果当前分类不是"全部"且有效，则使用它
-        if (currentCategory && currentCategory.id !== 'all' && 
+        if (currentCategory && currentCategory.id !== 'all' &&
             categories.some(c => c.id === currentCategory.id)) {
             validCategoryId = currentCategory.id;
         } else {
@@ -314,13 +326,13 @@ export function createRepository(name, description, categoryId) {
             validCategoryId = firstNonAllCategory ? firstNonAllCategory.id : 'other';
         }
     }
-    
+
     // 显示所选分类，方便调试
     console.log(`创建仓库 ${name} 到分类 ${validCategoryId}`);
-    
+
     const id = 'repo_' + Date.now();
     const filePath = `${id}.json`;
-    
+
     const newRepo = {
         id,
         name,
@@ -333,19 +345,19 @@ export function createRepository(name, description, categoryId) {
         createdBy: window.currentUser.username,
         createdAt: new Date().toLocaleString()
     };
-    
+
     repositories.push(newRepo);
-    
+
     // 保存到云端
     saveCloudConfig();
-    
+
     // 在Gitee上创建空文件
     createEmptyFile(newRepo);
-    
+
     // 更新UI
     renderRepositoriesByCategory();
     selectRepository(newRepo);
-    
+
     return newRepo;
 }
 
@@ -354,7 +366,7 @@ export function showNewRepoModal() {
     const newRepoModal = document.getElementById('newRepoModal');
     const categories = getCategories();
     const currentCategory = getCurrentCategory();
-    
+
     // 填充分类下拉框
     const categorySelect = document.getElementById('repoCategorySelect');
     if (categorySelect) {
@@ -363,16 +375,16 @@ export function showNewRepoModal() {
             const option = document.createElement('option');
             option.value = category.id;
             option.textContent = category.name;
-            
+
             // 如果当前分类不是"全部"，则选择它
             if (currentCategory && currentCategory.id !== 'all' && currentCategory.id === category.id) {
                 option.selected = true;
             }
-            
+
             categorySelect.appendChild(option);
         });
     }
-    
+
     newRepoModal.classList.add('show');
 }
 
@@ -385,10 +397,10 @@ export function hideNewRepoModal() {
 // 删除仓库
 export function deleteRepository(repoId) {
     if (!checkAdminPermission()) return;
-    
+
     const repo = repositories.find(r => r.id === repoId);
     if (!repo) return;
-    
+
     // 删除仓库文件
     fetch(`https://gitee.com/api/v5/repos/${repo.owner}/${repo.repoName}/contents/${repo.filePath}`, {
         method: 'DELETE',
@@ -402,33 +414,33 @@ export function deleteRepository(repoId) {
             branch: 'master'
         })
     })
-    .then(() => {
-        // 从配置中移除仓库
-        repositories = repositories.filter(r => r.id !== repoId);
-        saveCloudConfig();
-        renderRepositoriesByCategory();
-        showToast('仓库删除成功', 'success');
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('仓库删除失败', 'error');
-    });
+        .then(() => {
+            // 从配置中移除仓库
+            repositories = repositories.filter(r => r.id !== repoId);
+            saveCloudConfig();
+            renderRepositoriesByCategory();
+            showToast('仓库删除成功', 'success');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('仓库删除失败', 'error');
+        });
 }
 
 // 显示仓库编辑模态框
 export function showRepoEditModal(repo) {
     const modal = document.getElementById('repoEditModal');
     if (!modal) return;
-    
+
     // 填充表单
     document.getElementById('editRepoName').value = repo.name;
     document.getElementById('editRepoDescription').value = repo.description || '';
     document.getElementById('editRepoId').value = repo.id;
-    
+
     // 填充分类选择
     const categorySelect = document.getElementById('editRepoCategory');
     const categories = getCategories();
-    
+
     if (categorySelect) {
         categorySelect.innerHTML = '';
         categories.filter(c => c.id !== 'all').forEach(category => {
@@ -441,7 +453,7 @@ export function showRepoEditModal(repo) {
             categorySelect.appendChild(option);
         });
     }
-    
+
     // 显示模态框
     modal.classList.add('show');
 }
@@ -457,17 +469,17 @@ export function hideRepoEditModal() {
 // 更新仓库
 export function updateRepository() {
     if (!checkAdminPermission()) return;
-    
+
     const id = document.getElementById('editRepoId').value;
     const name = document.getElementById('editRepoName').value.trim();
     const description = document.getElementById('editRepoDescription').value.trim();
     const categoryId = document.getElementById('editRepoCategory').value;
-    
+
     if (!name) {
         showToast('仓库名称不能为空', 'error');
         return;
     }
-    
+
     const repo = repositories.find(r => r.id === id);
     if (repo) {
         repo.name = name;
@@ -483,7 +495,7 @@ export function updateRepository() {
 // 更新仓库UI，不重新加载数据
 export function updateRepoUI() {
     if (!currentRepo) return;
-    
+
     // 更新仓库名称
     const repoNameElement = document.getElementById('currentRepoName');
     if (repoNameElement) {
@@ -494,31 +506,31 @@ export function updateRepoUI() {
             ${currentRepo.name}
         `;
     }
-    
+
     // 更新仓库描述
     const repoDescription = document.getElementById('repoDescription');
     if (repoDescription) {
         repoDescription.textContent = currentRepo.description || '无描述';
     }
-    
+
     // 更新仓库分类
     const repoCategory = document.getElementById('repoCategory');
     const categories = getCategories();
-    
+
     if (repoCategory) {
         const category = categories.find(c => c.id === currentRepo.categoryId);
         repoCategory.textContent = category ? category.name : '未分类';
     }
-    
+
     // 更新创建者信息
     const repoCreatedBy = document.getElementById('repoCreatedBy');
     if (repoCreatedBy) {
         repoCreatedBy.textContent = currentRepo.createdBy || '未知';
     }
-    
+
     // 更新成员列表
     window.dispatchEvent(new CustomEvent('updateMembersUI', { detail: currentRepo }));
-    
+
     // 高亮当前仓库
     const repos = document.querySelectorAll('.repo-item');
     repos.forEach(item => {
